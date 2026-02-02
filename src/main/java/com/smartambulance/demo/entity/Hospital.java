@@ -3,8 +3,8 @@ package com.smartambulance.demo.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "hospitals")
+public class Hospital {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,16 +16,11 @@ public class User {
 
     private String password;
 
-    private String role;
+    private String address;
 
-    public User() {}
+    public Hospital() {}
 
-    public User(String name, String email, String password, String role) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
+    // Getters & Setters
 
     public Long getId() {
         return id;
@@ -39,14 +34,10 @@ public class User {
         this.name = name;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getEmail() {
         return email;
     }
-
+    
     public void setEmail(String email) {
         this.email = email;
     }
@@ -59,11 +50,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public String getAddress() {
+        return address;
     }
     
-    public void setRole(String role) {
-        this.role = role;
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
