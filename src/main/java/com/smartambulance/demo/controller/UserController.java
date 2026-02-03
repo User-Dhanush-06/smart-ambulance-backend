@@ -1,5 +1,7 @@
 package com.smartambulance.demo.controller;
 
+import com.smartambulance.demo.dto.UserRequestDTO;
+import com.smartambulance.demo.dto.UserResponseDTO;
 import com.smartambulance.demo.entity.User;
 import com.smartambulance.demo.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -15,15 +17,18 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userService.registerUser(user);
+    public UserResponseDTO register(
+            @RequestBody UserRequestDTO dto) {
+        return userService.register(dto);
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody User user) {
-        return userService.loginUser(
-                user.getEmail(),
-                user.getPassword()
+    public UserResponseDTO login(
+            @RequestBody UserRequestDTO dto) {
+        return userService.login(
+                dto.getEmail(),
+                dto.getPassword()
         );
     }
+
 }

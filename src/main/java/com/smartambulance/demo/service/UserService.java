@@ -1,10 +1,13 @@
 package com.smartambulance.demo.service;
 
+import com.smartambulance.demo.dto.UserRequestDTO;
+import com.smartambulance.demo.dto.UserResponseDTO;
 import com.smartambulance.demo.entity.User;
 
 public interface UserService {
 
-    User registerUser(User user);
+    UserResponseDTO register(UserRequestDTO dto);
 
-    User loginUser(String email, String password);
+    UserResponseDTO login(String email, String password);
+
 }

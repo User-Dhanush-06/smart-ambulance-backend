@@ -3,6 +3,7 @@ package com.smartambulance.demo.service.impl;
 import com.smartambulance.demo.entity.Ambulance;
 import com.smartambulance.demo.entity.EmergencyRequest;
 import com.smartambulance.demo.entity.User;
+import com.smartambulance.demo.exception.ResourceNotFoundException;
 import com.smartambulance.demo.repository.AmbulanceRepository;
 import com.smartambulance.demo.repository.EmergencyRequestRepository;
 import com.smartambulance.demo.repository.UserRepository;
@@ -37,9 +38,12 @@ public class EmergencyRequestServiceImpl
                                             double lat,
                                             double lon) {
 
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                new ResourceNotFoundException("User not found")
+                );
+
+
 
         EmergencyRequest request = new EmergencyRequest();
         request.setLatitude(lat);
@@ -64,11 +68,18 @@ public class EmergencyRequestServiceImpl
 
         EmergencyRequest request =
                 emergencyRepository.findById(requestId)
-                        .orElseThrow();
+                        .orElseThrow(() ->
+                        new ResourceNotFoundException("Emergency not found")
+                        );
+
 
         Ambulance ambulance =
                 ambulanceRepository.findById(ambulanceId)
-                        .orElseThrow();
+                        .orElseThrow(() ->
+                        new ResourceNotFoundException("Ambulance not found")
+                        );
+
+
 
         request.setAmbulance(ambulance);
         request.setStatus("ACCEPTED");
