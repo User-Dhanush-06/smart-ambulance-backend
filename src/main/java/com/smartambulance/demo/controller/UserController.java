@@ -1,8 +1,9 @@
 package com.smartambulance.demo.controller;
 
+import com.smartambulance.demo.dto.AuthResponseDTO;
 import com.smartambulance.demo.dto.UserRequestDTO;
 import com.smartambulance.demo.dto.UserResponseDTO;
-import com.smartambulance.demo.entity.User;
+import com.smartambulance.demo.dto.LoginRequestDTO;
 import com.smartambulance.demo.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public UserResponseDTO login(
-            @RequestBody UserRequestDTO dto) {
-        return userService.login(
-                dto.getEmail(),
-                dto.getPassword()
-        );
+    public AuthResponseDTO login(@RequestBody LoginRequestDTO dto) {
+        return userService.login(dto.getEmail(), dto.getPassword());
     }
+
 
 }

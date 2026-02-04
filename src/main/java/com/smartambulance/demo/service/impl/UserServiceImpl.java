@@ -1,5 +1,6 @@
 package com.smartambulance.demo.service.impl;
 
+import com.smartambulance.demo.dto.AuthResponseDTO;
 import com.smartambulance.demo.dto.UserRequestDTO;
 import com.smartambulance.demo.dto.UserResponseDTO;
 import com.smartambulance.demo.entity.User;
@@ -9,18 +10,23 @@ import com.smartambulance.demo.repository.UserRepository;
 import com.smartambulance.demo.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.smartambulance.demo.config.jwt.JwtUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public UserServiceImpl(UserRepository userRepository,
-                           BCryptPasswordEncoder passwordEncoder) {
+                        BCryptPasswordEncoder passwordEncoder,
+                        JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
+
 
     @Override
     public UserResponseDTO register(UserRequestDTO dto) {
@@ -42,24 +48,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO login(String email, String password) {
+    public AuthResponseDTO login(String email, String password) {
 
         User user = userRepository.findByEmail(email);
 
         if (user == null) {
-            throw new UserNotFoundException("User not found with email: " + email);
+            throw new UserNotFoundException("User not found");
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid email or password");
+            throw new InvalidCredentialsException("Wrong password");
         }
 
-        return new UserResponseDTO(
-                user.getId(),
-                user.getName(),
-                user.getEmail()
-        );
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return new AuthResponseDTO(token);
     }
+
 
 }
 
