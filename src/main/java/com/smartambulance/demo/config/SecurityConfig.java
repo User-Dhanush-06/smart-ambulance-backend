@@ -1,6 +1,7 @@
 package com.smartambulance.demo.config;
 
 import com.smartambulance.demo.config.jwt.JwtAuthFilter;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,10 +29,22 @@ public class SecurityConfig {
 
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+
+                // Public
                 .requestMatchers(
                         "/api/users/register",
                         "/api/users/login"
                 ).permitAll()
+
+                // User
+                .requestMatchers("/api/emergency/create")
+                .hasRole("USER")
+
+                // Ambulance
+                .requestMatchers("/api/emergency/assign/**")
+                .hasRole("AMBULANCE")
+
+                // Everything else
                 .anyRequest().authenticated()
             );
 

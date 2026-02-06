@@ -37,6 +37,7 @@ public class UserServiceImpl implements UserService {
 
         // ✅ Encrypt password
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setRole(dto.getRole().toUpperCase());
 
         User saved = userRepository.save(user);
 
@@ -60,7 +61,11 @@ public class UserServiceImpl implements UserService {
             throw new InvalidCredentialsException("Wrong password");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole()
+        );
+
 
         return new AuthResponseDTO(token);
     }

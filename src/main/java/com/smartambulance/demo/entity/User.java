@@ -1,5 +1,5 @@
 package com.smartambulance.demo.entity;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,8 +14,10 @@ public class User {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
+    @Column(nullable = false)
     private String role;
 
     public User() {}

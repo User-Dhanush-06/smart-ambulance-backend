@@ -10,26 +10,24 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // IMPORTANT: constant secret (not regenerated)
-    private static final String SECRET =
-            "smartambulanceprojectsmartambulanceproject12345";
-
-    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
-
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long EXPIRATION_TIME = 86400000; // 1 day
 
-    public String generateToken(String email) {
+    // Generate token with email + role
+    public String generateToken(String email, String role) {
 
         return Jwts.builder()
                 .setSubject(email)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(
                         new Date(System.currentTimeMillis() + EXPIRATION_TIME)
                 )
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key)
                 .compact();
     }
 
+    // Extract email
     public String extractEmail(String token) {
 
         return Jwts.parserBuilder()
@@ -40,6 +38,18 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    // Extract role
+    public String extractRole(String token) {
+
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
+
+    // Validate token
     public boolean validateToken(String token) {
         try {
             extractEmail(token);
