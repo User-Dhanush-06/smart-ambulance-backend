@@ -5,6 +5,9 @@ import com.smartambulance.demo.dto.UserRequestDTO;
 import com.smartambulance.demo.dto.UserResponseDTO;
 import com.smartambulance.demo.dto.LoginRequestDTO;
 import com.smartambulance.demo.service.UserService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public UserResponseDTO register(
+    public UserResponseDTO register(@Valid 
             @RequestBody UserRequestDTO dto) {
         return userService.register(dto);
     }

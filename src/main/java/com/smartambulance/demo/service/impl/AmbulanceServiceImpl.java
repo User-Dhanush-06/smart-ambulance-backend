@@ -1,6 +1,8 @@
 package com.smartambulance.demo.service.impl;
 
 import com.smartambulance.demo.config.jwt.JwtUtil;
+import com.smartambulance.demo.dto.AmbulanceRequestDTO;
+import com.smartambulance.demo.dto.AmbulanceResponseDTO;
 import com.smartambulance.demo.dto.AuthResponseDTO;
 import com.smartambulance.demo.entity.Ambulance;
 import com.smartambulance.demo.exception.InvalidCredentialsException;
@@ -18,6 +20,16 @@ public class AmbulanceServiceImpl implements AmbulanceService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    private AmbulanceResponseDTO mapToDTO(Ambulance amb) {
+        return new AmbulanceResponseDTO(
+                amb.getId(),
+                amb.getDriverName(),
+                amb.getEmail(),
+                amb.getLatitude(),
+                amb.getLongitude(),
+                amb.getStatus()
+        );
+    }
     public AmbulanceServiceImpl(
             AmbulanceRepository repository,
             BCryptPasswordEncoder passwordEncoder,
@@ -30,22 +42,30 @@ public class AmbulanceServiceImpl implements AmbulanceService {
 
 
     @Override
-    public Ambulance registerAmbulance(Ambulance ambulance) {
-        ambulance.setPassword(
-            passwordEncoder.encode(ambulance.getPassword())
-        );
-        ambulance.setStatus("AVAILABLE");
-        return repository.save(ambulance);
+    public AmbulanceResponseDTO register(AmbulanceRequestDTO dto) {
+
+        if (repository.existsByEmail(dto.getEmail())) {
+            throw new IllegalStateException("Email already registered");
+        }
+
+        Ambulance amb = new Ambulance();
+        amb.setDriverName(dto.getDriverName());
+        amb.setEmail(dto.getEmail());
+        amb.setPassword(passwordEncoder.encode(dto.getPassword()));
+        amb.setLatitude(dto.getLatitude());
+        amb.setLongitude(dto.getLongitude());
+        amb.setStatus("AVAILABLE");
+
+        Ambulance saved = repository.save(amb);
+
+        return mapToDTO(saved);
     }
 
     @Override
     public AuthResponseDTO loginAmbulance(String email, String password) {
 
-        Ambulance amb = repository.findByEmail(email);
-
-        if (amb == null) {
-            throw new ResourceNotFoundException("Ambulance not found");
-        }
+        Ambulance amb = repository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Ambulance not found"));
 
         if (!passwordEncoder.matches(password, amb.getPassword())) {
             throw new InvalidCredentialsException("Wrong password");
@@ -61,16 +81,15 @@ public class AmbulanceServiceImpl implements AmbulanceService {
 
 
     @Override
-    public Ambulance updateLocation(Long ambulanceId,
-                                    Double latitude,
-                                    Double longitude) {
+    public AmbulanceResponseDTO updateLocation(Long ambulanceId,
+                                            Double latitude,
+                                            Double longitude) {
 
-        Ambulance amb =
-                repository.findById(ambulanceId).orElseThrow();
+        Ambulance amb = repository.findById(ambulanceId).orElseThrow();
 
         amb.setLatitude(latitude);
         amb.setLongitude(longitude);
 
-        return repository.save(amb);
+        return mapToDTO(repository.save(amb));
     }
 }

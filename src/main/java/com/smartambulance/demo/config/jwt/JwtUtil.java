@@ -10,7 +10,10 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    //private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final String SECRET = "smartambulanceverysecurekey123456789";
+    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    
     private final long EXPIRATION_TIME = 86400000; // 1 day
 
     // Generate token with email + role

@@ -1,6 +1,6 @@
 package com.smartambulance.demo.controller;
 
-import com.smartambulance.demo.entity.EmergencyRequest;
+import com.smartambulance.demo.dto.EmergencyResponseDTO;
 import com.smartambulance.demo.service.EmergencyRequestService;
 
 import org.springframework.web.bind.annotation.*;
@@ -18,26 +18,40 @@ public class EmergencyRequestController {
 
     // User creates emergency
     @PostMapping("/create")
-    public EmergencyRequest create(
-            @RequestParam Long userId,
+    public EmergencyResponseDTO create(
             @RequestParam double lat,
             @RequestParam double lon) {
 
-        return service.createEmergency(userId, lat, lon);
+        return service.createEmergency(lat, lon);
     }
 
 
     // Ambulance views pending requests
     @GetMapping("/pending")
-    public List<EmergencyRequest> getPending() {
+    public List<EmergencyResponseDTO> getPending() {
         return service.getPendingEmergencies();
     }
 
     // Ambulance accepts emergency
     @PutMapping("/assign/{requestId}/{ambulanceId}")
-    public EmergencyRequest assignAmbulance(
+    public EmergencyResponseDTO assignAmbulance(
             @PathVariable Long requestId,
             @PathVariable Long ambulanceId) {
         return service.assignAmbulance(requestId, ambulanceId);
+    }
+
+    @PutMapping("/{id}/pickup")
+    public EmergencyResponseDTO pickup(@PathVariable Long id) {
+        return service.pickup(id);
+    }
+
+    @PutMapping("/{id}/drop")
+    public EmergencyResponseDTO drop(@PathVariable Long id) {
+        return service.drop(id);
+    }
+
+    @PutMapping("/{id}/complete")
+    public EmergencyResponseDTO complete(@PathVariable Long id) {
+        return service.complete(id);
     }
 }

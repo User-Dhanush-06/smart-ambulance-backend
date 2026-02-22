@@ -5,10 +5,10 @@ import com.smartambulance.demo.config.jwt.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
@@ -25,52 +25,34 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http)
-            throws Exception {
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(csrf -> csrf.disable())
+    http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
 
-                // Public
-                .requestMatchers(
-                        "/api/users/register",
-                        "/api/users/login",
-                        "/api/ambulance/register",
-                        "/api/ambulance/login",
-                        "/api/hospital/register",
-                        "/api/hospital/login"
-                ).permitAll()
+                    // PUBLIC
+                    .requestMatchers("/api/users/register", "/api/users/login").permitAll()
+                    .requestMatchers("/api/ambulance/register", "/api/ambulance/login").permitAll()
+                    .requestMatchers("/api/hospital/register", "/api/hospital/login").permitAll()
 
-                // User
-                .requestMatchers("/api/emergency/create")
-                .hasRole("USER")
+                    // USER
+                    .requestMatchers("/api/emergency/create").hasRole("USER")
 
-                // Ambulance
-                .requestMatchers("/api/emergency/assign/**")
-                .hasRole("AMBULANCE")
+                    // AMBULANCE
+                    .requestMatchers("/api/emergency/pending").hasRole("AMBULANCE")
+                    .requestMatchers("/api/emergency/assign/**").hasRole("AMBULANCE")
+                    .requestMatchers("/api/emergency/*/pickup").hasRole("AMBULANCE")
+                    .requestMatchers("/api/emergency/*/drop").hasRole("AMBULANCE")
+                    .requestMatchers("/api/emergency/*/complete").hasRole("AMBULANCE")
+                    .requestMatchers("/api/hospital/emergencies").hasRole("HOSPITAL")
 
-                // Everything else
-                .anyRequest().authenticated()
-            );
+                    // EVERYTHING ELSE
+                    .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.addFilterBefore(
-                jwtAuthFilter,
-                UsernamePasswordAuthenticationFilter.class
-        );
-    http
-        .exceptionHandling(ex -> ex
-            .authenticationEntryPoint((request, response, authException) -> {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\": \"Unauthorized\"}");
-            })
-            .accessDeniedHandler((request, response, accessDeniedException) -> {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\": \"Forbidden\"}");
-            })
-        );
-
-        return http.build();
-    }
+    return http.build();
+}
 }

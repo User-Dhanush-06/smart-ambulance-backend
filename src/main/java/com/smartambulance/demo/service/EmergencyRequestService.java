@@ -1,13 +1,20 @@
 package com.smartambulance.demo.service;
 
-import com.smartambulance.demo.entity.EmergencyRequest;
+
+import com.smartambulance.demo.dto.EmergencyResponseDTO;
 import java.util.List;
 
 public interface EmergencyRequestService {
 
-    public EmergencyRequest createEmergency(Long userId, double lat, double lon);
+    EmergencyResponseDTO createEmergency(double lat, double lon);
 
-    List<EmergencyRequest> getPendingEmergencies();
+    List<EmergencyResponseDTO> getPendingEmergencies();
 
-    public EmergencyRequest assignAmbulance(Long emergencyId, Long ambulanceId);
+    EmergencyResponseDTO assignAmbulance(Long emergencyId, Long ambulanceId);
+
+    EmergencyResponseDTO pickup(Long id);
+
+    EmergencyResponseDTO drop(Long id);
+    
+    EmergencyResponseDTO complete(Long id);
 }

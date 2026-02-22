@@ -12,6 +12,7 @@ public class Ambulance {
 
     private String driverName;
 
+    @Column(unique = true)
     private String email;
 
     private String password;

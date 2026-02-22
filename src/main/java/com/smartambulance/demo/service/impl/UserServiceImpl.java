@@ -37,8 +37,12 @@ public class UserServiceImpl implements UserService {
 
         // ✅ Encrypt password
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRole(dto.getRole().toUpperCase());
+        user.setRole("USER");
 
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalStateException("Email already registered");
+        }
+        
         User saved = userRepository.save(user);
 
         return new UserResponseDTO(
@@ -51,11 +55,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public AuthResponseDTO login(String email, String password) {
 
-        User user = userRepository.findByEmail(email);
-
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new InvalidCredentialsException("Wrong password");
