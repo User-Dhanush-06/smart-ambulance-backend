@@ -1,5 +1,6 @@
 package com.smartambulance.demo.controller;
 
+import com.smartambulance.demo.dto.AuthResponseDTO;
 import com.smartambulance.demo.entity.Hospital;
 import com.smartambulance.demo.service.HospitalService;
 
@@ -21,7 +22,7 @@ public class HospitalController {
     }
 
     @PostMapping("/login")
-    public Hospital login(@RequestBody Hospital hospital) {
+    public AuthResponseDTO login(@RequestBody Hospital hospital) {
         return service.loginHospital(
                 hospital.getEmail(),
                 hospital.getPassword()

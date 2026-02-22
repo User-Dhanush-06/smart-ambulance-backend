@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
@@ -33,7 +34,11 @@ public class SecurityConfig {
                 // Public
                 .requestMatchers(
                         "/api/users/register",
-                        "/api/users/login"
+                        "/api/users/login",
+                        "/api/ambulance/register",
+                        "/api/ambulance/login",
+                        "/api/hospital/register",
+                        "/api/hospital/login"
                 ).permitAll()
 
                 // User
@@ -51,6 +56,19 @@ public class SecurityConfig {
         http.addFilterBefore(
                 jwtAuthFilter,
                 UsernamePasswordAuthenticationFilter.class
+        );
+    http
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint((request, response, authException) -> {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Unauthorized\"}");
+            })
+            .accessDeniedHandler((request, response, accessDeniedException) -> {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Forbidden\"}");
+            })
         );
 
         return http.build();
